@@ -2,7 +2,7 @@
   "name": "sourcepawn-vscode",
   "displayName": "SourcePawn Studio",
   "description": "SourcePawn highlighting, autocompletion and much more",
-  "version": "8.0.2",
+  "version": "8.0.3",
   "publisher": "Sarrus",
   "main": "./dist/spIndex.js",
   "icon": "sp-studio_square_256x256.png",
@@ -226,6 +226,12 @@
           "description": "Whether the compile button always compiles the MainPath file (true) or the currently opened file (false).",
           "scope": "resource"
         },
+        "sourcepawn.useAlternativeOutputPath": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use alternative output path determination for compiled files",
+          "scope": "resource"
+        },
         "sourcepawn.showCompileIconInEditorTitleMenu": {
           "type": "boolean",
           "default": true,
@@ -274,7 +280,7 @@
         "sourcepawn.outputDirectoryPath": {
           "type": "string",
           "default": "",
-          "description": "The path to the output directory for the compiled .smx file. Ends with a `/`.",
+          "description": "The path to the output directory for the compiled .smx file. Ends with a `/`. NOTE: It only works with useAlternativeOutputPath active.",
           "scope": "resource"
         },
         "sourcepawn.UploadOptions": {

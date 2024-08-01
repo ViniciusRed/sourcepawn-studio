@@ -12,7 +12,7 @@ import axios from "axios";
 import decompress from "decompress";
 import { getConfig, Section } from "../configUtils";
 
-const outputDir = join(homedir(), "sourcemodAPI/");
+const outputDir = join(homedir(), ".sourcemodAPI/");
 const Platform = platform();
 
 export async function run(args: any): Promise<void> {
