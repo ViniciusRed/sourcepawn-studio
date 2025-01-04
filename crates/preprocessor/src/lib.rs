@@ -595,8 +595,8 @@ where
     }
 
     fn process_negative_condition(&mut self, symbol: &Symbol) -> anyhow::Result<()> {
-        match &symbol.token_kind {
-            TokenKind::PreprocDir(dir) => match dir {
+        if let TokenKind::PreprocDir(dir) = symbol.token_kind {
+            match dir {
                 PreprocDir::MIf => {
                     // Keep track of any nested if statements to ensure we properly pop when reaching an endif.
                     self.conditions_stack.push(ConditionState::Activated);
@@ -605,29 +605,7 @@ where
                 PreprocDir::MElse => self.process_else_directive(symbol)?,
                 PreprocDir::MElseif => self.process_elseif_directive(symbol)?,
                 _ => (),
-            },
-            TokenKind::Newline => {
-                // Keep the newline to keep the line numbers in sync.
-                let start_offset = self.buffer.offset();
-                self.buffer.push_new_line();
-                self.condition_offsets_stack
-                    .push_skipped_range(TextRange::new(
-                        start_offset.into(),
-                        self.buffer.offset().into(),
-                    ));
             }
-            TokenKind::Comment(Comment::BlockComment) => {
-                let start_offset = self.buffer.offset();
-                let line_delta = linebreak_count(symbol.text().as_str());
-                self.buffer.push_new_lines(line_delta as u32);
-                self.condition_offsets_stack
-                    .push_skipped_range(TextRange::new(
-                        start_offset.into(),
-                        self.buffer.offset().into(),
-                    ));
-            }
-            // Skip any token that is not a directive or a newline.
-            _ => (),
         }
 
         Ok(())
