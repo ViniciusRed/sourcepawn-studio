@@ -11,6 +11,7 @@ pub mod to_proto;
 
 // pub(crate) type CheckFixes = Arc<IntMap<usize, IntMap<FileId, Vec<Fix>>>>;
 
+#[allow(unused)]
 #[derive(Debug, Default, Clone)]
 pub struct DiagnosticsMapConfig {
     pub remap_prefix: FxHashMap<String, String>,
@@ -148,28 +149,33 @@ pub(crate) fn fetch_native_diagnostics(
     subscriptions
         .into_iter()
         .filter_map(|file_id| {
+            let line_index = snapshot.file_line_index(file_id).ok()?;
             let diagnostics = snapshot
                 .analysis
                 .diagnostics(&snapshot.config.diagnostics(), file_id)
                 .ok()?
                 .into_iter()
-                .map(move |d| lsp_types::Diagnostic {
-                    range: d.range,
-                    severity: Some(lsp::to_proto::diagnostic_severity(d.severity)),
-                    code: Some(lsp_types::NumberOrString::String(
-                        d.code.as_str().to_string(),
-                    )),
-                    // code_description: Some(lsp_types::CodeDescription {
-                    //     href: lsp_types::Url::parse(&d.code.url()).unwrap(),
-                    // }),
-                    code_description: None,
-                    source: Some("sourcepawn-studio".to_string()),
-                    message: d.message,
-                    related_information: None,
-                    tags: d
-                        .unused
-                        .then(|| vec![lsp_types::DiagnosticTag::UNNECESSARY]),
-                    data: None,
+                .filter_map(move |d| {
+                    let range = line_index.try_range(d.u_range)?;
+                    lsp_types::Diagnostic {
+                        range,
+                        severity: Some(lsp::to_proto::diagnostic_severity(d.severity)),
+                        code: Some(lsp_types::NumberOrString::String(
+                            d.code.as_str().to_string(),
+                        )),
+                        // code_description: Some(lsp_types::CodeDescription {
+                        //     href: lsp_types::Url::parse(&d.code.url()).unwrap(),
+                        // }),
+                        code_description: None,
+                        source: Some("sourcepawn-studio".to_string()),
+                        message: d.message,
+                        related_information: None,
+                        tags: d
+                            .unused
+                            .then(|| vec![lsp_types::DiagnosticTag::UNNECESSARY]),
+                        data: None,
+                    }
+                    .into()
                 })
                 .collect::<Vec<_>>();
             Some((file_id, diagnostics))
