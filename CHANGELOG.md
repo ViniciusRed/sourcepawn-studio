@@ -1,5 +1,24 @@
 ## Release Notes
 
+## [0.13.8]
+
+### Fixed
+
+- Fixed a parsing issue (see #415).
+
+## [0.13.6]
+
+### Fixed
+
+- Fixed an issue when resolving the type of a function parameter.
+
+## [0.13.5]
+
+### Fixed
+
+- Fixed an edge case were the SourceMap would not be properly initialized.
+- Fixed completions triggers not properly converting to a server range.
+
 ## [0.13.4]
 
 ### Fixed
