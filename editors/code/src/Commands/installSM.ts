@@ -12,7 +12,7 @@ import axios from "axios";
 import decompress from "decompress";
 import { getConfig, Section } from "../configUtils";
 
-const outputDir = join(homedir(), "sourcemodAPI/");
+const outputDir = join(homedir(), ".sourcemodAPI/");
 const Platform = platform();
 
 export async function run(args: any): Promise<void> {
@@ -75,37 +75,71 @@ async function getSourceModVersion(
   token: CancellationToken
 ): Promise<void> {
   let oldStatus = 0;
-  const value = await window.showQuickPick(buildQuickPickSMVersion(), {
-    title: "Pick a version of Sourcemod to install",
-  });
-  await downloadAndDecompressFile(
-    await getSourcemodUrl(value.label),
-    join(outputDir, "sm.gz"),
-    (newStatus: number) => {
-      if (newStatus === 100) {
-        progress.report({ message: "Unzipping..." });
-        return;
-      }
-      let inc = newStatus - oldStatus;
-      oldStatus = newStatus;
-      progress.report({
-        message: "Downloading...",
-        increment: inc,
-      });
-    }
-  );
-  return;
-}
 
-function buildQuickPickSMVersion(): QuickPickItem[] {
-  return [
-    { label: "1.7", description: "Legacy" },
-    { label: "1.8", description: "Legacy" },
-    { label: "1.9", description: "Legacy" },
-    { label: "1.10", description: "Legacy" },
-    { label: "1.11", description: "Stable", picked: true },
-    { label: "1.12", description: "Dev" },
-  ];
+  try {
+    const versions = await buildQuickPickSMVersion();
+    console.log("Available versions:", versions);
+
+    const value = await window.showQuickPick(versions, {
+      title: "Pick a version of Sourcemod to install",
+      placeHolder: "Select SourceMod version",
+      ignoreFocusOut: true
+    });
+
+    if (!value) return;
+
+    await downloadAndDecompressFile(
+      await getSourcemodUrl(value.label),
+      join(outputDir, "sm.gz"),
+      (newStatus: number) => {
+        if (newStatus === 100) {
+          progress.report({ message: "Unzipping..." });
+          return;
+        }
+        let inc = newStatus - oldStatus;
+        oldStatus = newStatus;
+        progress.report({
+          message: "Downloading...",
+          increment: inc,
+        });
+      }
+    );
+  } catch (error) {
+    window.showErrorMessage(`Failed to fetch SourceMod versions: ${error}`);
+  }
+}
+async function buildQuickPickSMVersion(): Promise<QuickPickItem[]> {
+  const baseUrl = "https://sm.alliedmods.net/smdrop";
+  const response = await axios.get(baseUrl);
+
+  console.log("Raw response:", response.data);
+
+  const versions = response.data.match(/href="\d+\.\d+/g)
+    ?.map(v => v.replace('href="', ''))
+    ?.sort((a, b) => {
+      const [majorA, minorA] = a.split('.').map(Number);
+      const [majorB, minorB] = b.split('.').map(Number);
+      return majorB !== majorA ? majorB - majorA : minorB - minorA;
+    }) || [];
+
+  console.log("Found versions:", versions);
+
+  const devVersion = versions[0];
+  const stableVersion = versions[1];
+
+  console.log("Dev version:", devVersion);
+  console.log("Stable version:", stableVersion);
+
+  const items = versions.map(version => ({
+    label: version,
+    description: version === devVersion ? "Dev" :
+      version === stableVersion ? "Stable" : "Legacy",
+    picked: version === stableVersion
+  }));
+
+  console.log("Final QuickPick items:", items);
+
+  return items;
 }
 
 async function getSourcemodUrl(smVersion: string) {
