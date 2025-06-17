@@ -17,6 +17,8 @@ opt-level = 3
 opt-level = 3
 
 [profile.release]
+opt-level = 3
+lto = "fat"
 debug = true
 
 [workspace.dependencies]

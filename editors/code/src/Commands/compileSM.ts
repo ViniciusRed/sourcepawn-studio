@@ -64,31 +64,53 @@ export async function run(args: URI): Promise<number> {
   }
 
   // Decide where to output the compiled file.
+  
   const scriptingFolderPath = dirname(fileToCompilePath);
-  const pluginsFolderPath = join(scriptingFolderPath, "../", "plugins/");
-  let outputDir: string = getConfig(Section.SourcePawn, "outputDirectoryPath", workspaceFolder) || pluginsFolderPath;
-  if (outputDir === pluginsFolderPath && !existsSync(outputDir)) {
-    mkdirSync(outputDir);
+  const useAlternativeOutputPath = getConfig(Section.SourcePawn, "useAlternativeOutputPath", workspaceFolder);
+
+  let outputDir: string;
+
+  if (!useAlternativeOutputPath) {
+
+    const possiblePluginsPaths = [
+      join(workspaceFolder.uri.fsPath, "plugins/"),
+      join(workspaceFolder.uri.fsPath, "addons", "sourcemod", "plugins/"),
+      join(scriptingFolderPath, "../", "plugins/")
+    ];
+
+    outputDir = possiblePluginsPaths.find(path => existsSync(path));
+
+    if (!outputDir) {
+      // If no plugins folder found, create one in the default location
+      outputDir = join(workspaceFolder.uri.fsPath, "plugins/");
+      mkdirSync(outputDir, { recursive: true });
+    }
+    outputDir += basename(fileToCompilePath, ".sp") + ".smx";
   } else {
-    // If the outputDirectoryPath setting is not empty, make sure it exists before trying to write to it.
-    if (!existsSync(outputDir)) {
-      const workspaceFolder = Workspace.workspaceFolders[0];
-      outputDir = join(workspaceFolder.uri.fsPath, outputDir);
+    const pluginsFolderPath = join(scriptingFolderPath, "../", "plugins/");
+    outputDir = getConfig(Section.SourcePawn, "outputDirectoryPath", workspaceFolder) || pluginsFolderPath;
+    if (outputDir === pluginsFolderPath && !existsSync(outputDir)) {
+      mkdirSync(outputDir);
+    } else {
+      // If the outputDirectoryPath setting is not empty, make sure it exists before trying to write to it.
       if (!existsSync(outputDir)) {
-        window.showErrorMessage(
-          "The output directory does not exist.",
-          "Open Settings"
-        )
-          .then((choice) => {
-            if (choice === "Open Settings") {
-              editConfig(Section.SourcePawn, "outputDirectoryPath");
-            }
-          });
-        return 1;
+        const workspaceFolder = Workspace.workspaceFolders[0];
+        outputDir = join(workspaceFolder.uri.fsPath, outputDir);
+        if (!existsSync(outputDir)) {
+          window.showErrorMessage(
+            "The output directory does not exist.",
+            "Open Settings"
+          )
+            .then((choice) => {
+              if (choice === "Open Settings") {
+                editConfig(Section.SourcePawn, "outputDirectoryPath");
+              }
+            });
+          return 1;
+        }
       }
     }
   }
-  outputDir += basename(fileToCompilePath, ".sp") + ".smx";
 
   // Add the compiler options from the settings.
   const compilerArguments: string[] = getConfig(Section.LSP, "compiler.arguments", workspaceFolder);

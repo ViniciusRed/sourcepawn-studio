@@ -24,33 +24,72 @@
     },
     {
       "label": "Build Server",
-      "group": "build",
       "type": "shell",
-      "command": "cargo build",
-      "problemMatcher": "$rustc"
+      "command": "cargo build ${input:buildType}",
+      "group": "build",
+      "problemMatcher": [
+        "$rustc"
+      ]
     },
     {
-      "label": "Build Server (Release)",
-      "group": "build",
+      "label": "Package Extension",
       "type": "shell",
-      "command": "cargo build --release",
-      "problemMatcher": "$rustc"
+      "command": "mkdir -p languageServer && cp ${workspaceFolder}/target/${input:buildFolder}/sourcepawn-studio languageServer/ && npx vsce package --target ${input:target}",
+      "options": {
+        "cwd": "${workspaceFolder}/editors/code"
+      },
+      "problemMatcher": []
     },
     {
-      "label": "Build Server and Extension",
+      "label": "Build and Package Extension",
       "dependsOn": [
-        "Build Extension",
         "Build Server",
+        "Package Extension"
       ],
-      "problemMatcher": "$rustc"
+      "dependsOrder": "sequence",
+      "problemMatcher": [
+        "$rustc",
+        "$tsc"
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "buildType",
+      "type": "pickString",
+      "description": "Select build type",
+      "options": [
+        {
+          "label": "Release",
+          "value": "--release"
+        },
+        {
+          "label": "Debug",
+          "value": ""
+        }
+      ]
     },
     {
-      "label": "Build Server (Release) and Extension",
-      "dependsOn": [
-        "Build Extension",
-        "Build Server (Release)"
-      ],
-      "problemMatcher": "$rustc"
+      "id": "buildFolder",
+      "type": "pickString",
+      "description": "Select build folder",
+      "options": [
+        "release",
+        "debug"
+      ]
+    },
+    {
+      "id": "target",
+      "type": "pickString",
+      "description": "Select the target platform",
+      "options": [
+        "win32-x64",
+        "win32-ia32",
+        "linux-x64",
+        "linux-arm64",
+        "darwin-x64",
+        "darwin-arm64"
+      ]
     }
   ]
 }
