@@ -1,10 +1,4 @@
-import {
-  window,
-  ProgressLocation,
-  CancellationToken,
-  Progress,
-  QuickPickItem,
-} from "vscode";
+import { window, ProgressLocation, CancellationToken, Progress, QuickPickItem } from "vscode";
 import { join } from "path";
 import { platform, homedir } from "os";
 import { createWriteStream, existsSync, mkdirSync, rmSync } from "fs";
@@ -39,11 +33,7 @@ export async function run(args: any): Promise<void> {
   }
   if (compilerPath != "") {
     window
-      .showInformationMessage(
-        "The setting for compiler.path is not empty, do you want to override it?",
-        "Yes",
-        "No"
-      )
+      .showInformationMessage("The setting for compiler.path is not empty, do you want to override it?", "Yes", "No")
       .then((choice) => {
         if (choice === "Yes") {
           updatePath(smDir, spComp);
@@ -63,11 +53,7 @@ function updatePath(smDir: string, spComp: string): void {
     Array.from(new Set(includeDirectories)), // avoid duplicates
     true
   );
-  getConfig(Section.LSP).update(
-    "compiler.path",
-    spComp,
-    true
-  );
+  getConfig(Section.LSP).update("compiler.path", spComp, true);
 }
 
 async function getSourceModVersion(
@@ -83,7 +69,7 @@ async function getSourceModVersion(
     const value = await window.showQuickPick(versions, {
       title: "Pick a version of Sourcemod to install",
       placeHolder: "Select SourceMod version",
-      ignoreFocusOut: true
+      ignoreFocusOut: true,
     });
 
     if (!value) return;
@@ -114,13 +100,15 @@ async function buildQuickPickSMVersion(): Promise<QuickPickItem[]> {
 
   console.log("Raw response:", response.data);
 
-  const versions = response.data.match(/href="\d+\.\d+/g)
-    ?.map(v => v.replace('href="', ''))
-    ?.sort((a, b) => {
-      const [majorA, minorA] = a.split('.').map(Number);
-      const [majorB, minorB] = b.split('.').map(Number);
-      return majorB !== majorA ? majorB - majorA : minorB - minorA;
-    }) || [];
+  const versions =
+    response.data
+      .match(/href="\d+\.\d+/g)
+      ?.map((v) => v.replace('href="', ""))
+      ?.sort((a, b) => {
+        const [majorA, minorA] = a.split(".").map(Number);
+        const [majorB, minorB] = b.split(".").map(Number);
+        return majorB !== majorA ? majorB - majorA : minorB - minorA;
+      }) || [];
 
   console.log("Found versions:", versions);
 
@@ -130,11 +118,10 @@ async function buildQuickPickSMVersion(): Promise<QuickPickItem[]> {
   console.log("Dev version:", devVersion);
   console.log("Stable version:", stableVersion);
 
-  const items = versions.map(version => ({
+  const items = versions.map((version) => ({
     label: version,
-    description: version === devVersion ? "Dev" :
-      version === stableVersion ? "Stable" : "Legacy",
-    picked: version === stableVersion
+    description: version === devVersion ? "Dev" : version === stableVersion ? "Stable" : "Legacy",
+    picked: version === stableVersion,
   }));
 
   console.log("Final QuickPick items:", items);
