@@ -1,5 +1,26 @@
 ## Release Notes
 
+## [0.13.12]
+
+### Fixed
+
+- Fixed crash when hovering over macro defined in function.
+- Fixed a potential indexing with an invalid key.
+- Fixed a panic due to invalid ranges.
+
+## [0.13.11]
+
+### Fixed
+
+- Mitigated a panic due to an invalid offset.
+
+## [0.13.10]
+
+### Fixed
+
+- Fixed an error when parsing event names.
+- Fixed a few offset issues in the preprocessor.
+
 ## [0.13.9]
 
 ### Fixed

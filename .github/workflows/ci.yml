@@ -71,7 +71,7 @@ jobs:
           cargo search cargo-audit | grep '^cargo-audit' | awk '{gsub(/"/,"",$3); print $3}' > .github/caching/cargo-audit.lock
       - name: Cache cargo-audit/bin
         id: cache-cargo-audit
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ${{ runner.tool_cache }}/cargo-audit/bin
           key: cargo-audit-bin-${{ hashFiles('.github/caching/cargo-audit.lock') }}
@@ -107,15 +107,15 @@ jobs:
             platform: darwin
             arch: arm64
 
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             platform: linux
             arch: x64
 
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             platform: linux
             arch: arm64
 
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             platform: linux
             arch: armhf
 
@@ -158,15 +158,15 @@ jobs:
             platform: darwin
             arch: arm64
 
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             platform: linux
             arch: x64
 
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             platform: linux
             arch: arm64
 
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             platform: linux
             arch: armhf
 

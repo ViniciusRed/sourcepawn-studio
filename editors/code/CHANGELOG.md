@@ -1,5 +1,27 @@
 ## Release Notes
 
+## [8.1.5]
+
+### Fixed
+
+- LSP version bump
+
+## [8.1.4]
+
+### Fixed
+
+- LSP version bump
+
+## [8.1.3]
+
+### Added
+
+- Added SM 1.13 to the list of downloadable sourcemods.
+
+### Fixed
+
+- LSP version bump
+
 ## [8.1.2]
 
 ### Fixed

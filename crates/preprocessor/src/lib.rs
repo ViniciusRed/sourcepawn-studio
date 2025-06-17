@@ -75,7 +75,7 @@ where
             errors: Default::default(),
             conditions_stack: Default::default(),
             condition_offsets_stack: Default::default(),
-            buffer: Default::default(),
+            buffer: PreprocessorBuffer::new(input.len()),
             macro_store: Default::default(),
             expansion_stack: Default::default(),
         }
@@ -251,18 +251,26 @@ where
                                 true,
                             ) {
                                 Ok(r_paren_offset) => {
-                                    if let Some(r_paren_offset) = r_paren_offset {
-                                        let symbol = Symbol::new(
-                                            symbol.token_kind,
-                                            symbol.text().as_str().into(),
-                                            TextRange::new(symbol.range.start(), r_paren_offset),
-                                            symbol.delta,
-                                        );
-                                        expanded_symbol =
-                                            Some((symbol, macro_, self.buffer.offset()));
-                                    } else {
-                                        expanded_symbol =
-                                            Some((symbol, macro_, self.buffer.offset()));
+                                    match r_paren_offset {
+                                        Some(r_paren_offset)
+                                            if symbol.range.start() <= r_paren_offset =>
+                                        {
+                                            let symbol = Symbol::new(
+                                                symbol.token_kind,
+                                                symbol.text().as_str().into(),
+                                                TextRange::new(
+                                                    symbol.range.start(),
+                                                    r_paren_offset,
+                                                ),
+                                                symbol.delta,
+                                            );
+                                            expanded_symbol =
+                                                Some((symbol, macro_, self.buffer.offset()));
+                                        }
+                                        _ => {
+                                            expanded_symbol =
+                                                Some((symbol, macro_, self.buffer.offset()));
+                                        }
                                     }
                                     continue;
                                 }
@@ -302,11 +310,11 @@ where
                     _ => self.buffer.push_symbol(&symbol),
                 },
                 TokenKind::Eof => {
-                    self.buffer.push_ws(&symbol);
+                    self.buffer.push_symbol(&symbol);
                     break;
                 }
                 TokenKind::Newline => {
-                    self.buffer.push_new_line();
+                    self.buffer.push_symbol(&symbol);
                 }
                 _ => self.buffer.push_symbol(&symbol),
             }

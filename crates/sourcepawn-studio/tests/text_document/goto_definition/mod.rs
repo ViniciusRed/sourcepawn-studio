@@ -272,6 +272,21 @@ void bar() {
     ));
 }
 
+#[ignore = "We should include sourcemod for this to work"]
+#[test]
+fn function_3() {
+    assert_json_snapshot!(goto_definition(
+        r#"
+%! main.sp
+void bar() {
+    float();
+      |
+      ^
+}
+"#,
+    ));
+}
+
 #[test]
 fn enum_struct_1() {
     assert_json_snapshot!(goto_definition(
