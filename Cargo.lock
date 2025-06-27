@@ -2093,12 +2093,7 @@ dependencies = [
 name = "profile"
 version = "0.1.0"
 dependencies = [
- "cfg-if",
  "countme",
- "la-arena",
- "libc",
- "once_cell",
- "winapi",
 ]
 
 [[package]]
@@ -2689,7 +2684,7 @@ dependencies = [
 
 [[package]]
 name = "sourcepawn-studio"
-version = "0.13.12"
+version = "0.13.14"
 dependencies = [
  "always-assert",
  "anyhow",
