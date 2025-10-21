@@ -18,8 +18,17 @@ opt-level = 3
 
 [profile.release]
 opt-level = 3
-lto = "fat"
 debug = true
+debug-assertions = false
+overflow-checks = false
+lto = "fat"
+codegen-units = 1
+strip = true
+rpath = false
+
+[profile.release.package."*"]
+opt-level = 3
+codegen-units = 1
 
 [workspace.dependencies]
 preprocessor = { path = "./crates/preprocessor" }
@@ -39,42 +48,42 @@ stdx = { path = "./crates/stdx" }
 paths = { path = "./crates/paths" }
 test-utils = { path = "./crates/test-utils" }
 completion-data = { path = "./crates/completion-data" }
-lsp-server = "0.7.4"
-crossbeam = "0.8.2"
-dashmap = "5.4.0"
+lsp-server = "0.7.8"
+crossbeam = "0.8.4"
+dashmap = "6.1.0"
 threadpool = "1.8.1"
-walkdir = "2.3.2"
-log = "0.4.17"
-rowan = "0.15.10"
-lazy_static = "1.4.0"
-regex = "1.7.0"
-notify = "6.1.1"
+walkdir = "2.5.0"
+log = "0.4.27"
+rowan = "0.16.1"
+lazy_static = "1.5.0"
+regex = "1.11.1"
+notify = "8.0.0"
 fxhash = "0.2.1"
-tempfile = "3.4.0"
-clap = { version = "4.1.13", features = ["derive"] }
-fern = "0.6.2"
-humantime = "2.1.0"
+tempfile = "3.20.0"
+clap = { version = "4.5.40", features = ["derive"] }
+fern = "0.7.1"
+humantime = "2.2.0"
 sourcepawn_lexer = "0.3.0"
-sentry = "0.32.2"
-parking_lot = "0.12.1"
-lsp-types = { version = "=0.94.1", features = ["proposed"] }
-anyhow = "1.0.66"
+sentry = "0.41.0"
+parking_lot = "0.12.4"
+lsp-types = { version = "0.94.1", features = ["proposed"] }
+anyhow = "1.0.98"
 tree-sitter = "0.24.7"
 streaming-iterator = "0.1.9"
 tree-sitter-sourcepawn = "0.7.8"
 strip_bom = "1.0.0"
-serde = "1.0.147"
-serde_json = { version = "^1.0.83", features = ["preserve_order"] }
-nohash-hasher = "^0.2.0"
-indexmap = "2.2.5"
+serde = "1.0.219"
+serde_json = { version = "1.0.140", features = ["preserve_order"] }
+nohash-hasher = "0.2.0"
+indexmap = "2.10.0"
 salsa = "0.17.0-pre.2"
-tracing = "0.1.40"
-smol_str = "0.2.0"
+tracing = "0.1.41"
+smol_str = "0.2.2"
 la-arena = "^0.3.1"
 smallvec = { version = "1.10.0", features = [
-    "const_new",
-    "union",
-    "const_generics",
+  "const_new",
+  "union",
+  "const_generics",
 ] }
 dunce = "1.0.4"
 always-assert = "0.1.2"
