@@ -47,6 +47,29 @@ impl GlobalState {
                     .into_iter()
                     .map(VfsPath::from),
             );
+            
+            // Automatically detect and add common SourcePawn include directories
+            let root_path = self.config.root_path();
+            let common_include_paths = vec![
+                root_path.join("scripting/include"),
+                root_path.join("scripting").join("include"),
+                root_path.join("addons/sourcemod/scripting/include"),
+                root_path.join("include"),
+            ];
+            
+            let mut auto_detected_includes = vec![];
+            for include_path in common_include_paths {
+                if let Ok(metadata) = std::fs::metadata(&include_path) {
+                    if metadata.is_dir() {
+                        let vfs_path = VfsPath::from(include_path.clone());
+                        if !roots.contains(&vfs_path) {
+                            roots.push(vfs_path);
+                            auto_detected_includes.push(include_path);
+                        }
+                    }
+                }
+            }
+            
             self.source_root_config.fsc.set_roots(roots);
             let mut load = self
                 .config
@@ -54,6 +77,12 @@ impl GlobalState {
                 .into_iter()
                 .map(vfs::loader::Entry::sp_files_recursively)
                 .collect_vec();
+            
+            // Load the automatically detected include directories
+            for include_path in auto_detected_includes {
+                load.push(vfs::loader::Entry::sp_files_recursively(include_path));
+            }
+            
             let watch = (0..load.len()).collect_vec();
             // The root_path can be the FS' root. Do not scrape the whole FS in that case.
             if self.config.root_path().parent().is_some() {
