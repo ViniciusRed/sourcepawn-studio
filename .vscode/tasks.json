@@ -4,9 +4,11 @@
     {
       "label": "Build Extension in Watch Mode",
       "group": "build",
-      "type": "npm",
-      "script": "watch",
-      "path": "./editors/code/",
+      "type": "shell",
+      "command": "bun run watch",
+      "options": {
+        "cwd": "${workspaceFolder}/editors/code"
+      },
       "problemMatcher": {
         "base": "$tsc-watch"
       },
@@ -15,9 +17,11 @@
     {
       "label": "Build Extension",
       "group": "build",
-      "type": "npm",
-      "script": "build",
-      "path": "./editors/code/",
+      "type": "shell",
+      "command": "bun run build",
+      "options": {
+        "cwd": "${workspaceFolder}/editors/code"
+      },
       "problemMatcher": {
         "base": "$tsc"
       }
@@ -27,14 +31,12 @@
       "type": "shell",
       "command": "cargo build ${input:buildType}",
       "group": "build",
-      "problemMatcher": [
-        "$rustc"
-      ]
+      "problemMatcher": ["$rustc"]
     },
     {
       "label": "Package Extension",
       "type": "shell",
-      "command": "mkdir -p languageServer && cp ${workspaceFolder}/target/${input:buildFolder}/sourcepawn-studio languageServer/ && npx vsce package --target ${input:target}",
+      "command": "mkdir -p languageServer && cp ${workspaceFolder}/target/${input:buildFolder}/sourcepawn-studio languageServer/ && bunx vsce package --target ${input:target}",
       "options": {
         "cwd": "${workspaceFolder}/editors/code"
       },
@@ -42,15 +44,9 @@
     },
     {
       "label": "Build and Package Extension",
-      "dependsOn": [
-        "Build Server",
-        "Package Extension"
-      ],
+      "dependsOn": ["Build Server", "Package Extension"],
       "dependsOrder": "sequence",
-      "problemMatcher": [
-        "$rustc",
-        "$tsc"
-      ]
+      "problemMatcher": ["$rustc", "$tsc"]
     }
   ],
   "inputs": [
@@ -73,10 +69,7 @@
       "id": "buildFolder",
       "type": "pickString",
       "description": "Select build folder",
-      "options": [
-        "release",
-        "debug"
-      ]
+      "options": ["release", "debug"]
     },
     {
       "id": "target",
