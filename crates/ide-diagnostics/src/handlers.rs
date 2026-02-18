@@ -1,3 +1,4 @@
+pub(crate) mod handle_leak;
 pub(crate) mod inactive_code;
 pub(crate) mod incorrect_number_of_arguments;
 pub(crate) mod invalid_use_of_this;

@@ -171,6 +171,7 @@ pub fn diagnostics(
             AnyDiagnostic::UnresolvedMacro(d) => handlers::unresolved_macro::f(&ctx, &d),
             AnyDiagnostic::InactiveCode(d) => handlers::inactive_code::f(&ctx, &d),
             AnyDiagnostic::InvalidUseOfThis(d) => handlers::invalid_use_of_this::f(&ctx, &d),
+            AnyDiagnostic::HandleLeak(d) => handlers::handle_leak::f(&ctx, &d),
         };
         res.push(d);
     }

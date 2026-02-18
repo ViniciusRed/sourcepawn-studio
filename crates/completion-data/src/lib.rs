@@ -25,7 +25,7 @@ impl Game<'_> {
         &self.name
     }
 
-    pub fn events(&self) -> &[Event] {
+    pub fn events(&self) -> &[Event<'_>] {
         &self.events
     }
 }
@@ -52,7 +52,7 @@ impl Event<'_> {
         self.note.as_deref()
     }
 
-    pub fn attributes(&self) -> &[Attribute] {
+    pub fn attributes(&self) -> &[Attribute<'_>] {
         &self.attributes
     }
 }
@@ -86,19 +86,19 @@ impl Attribute<'_> {
 
 impl Database<'_> {
     // FIXME: Get rid of the double borrow
-    pub fn iter(&self) -> impl Iterator<Item = (&&str, &Game)> + '_ {
+    pub fn iter(&self) -> impl Iterator<Item = (&&str, &Game<'_>)> + '_ {
         self.0.iter()
     }
 
-    pub fn get(&self, game: &str) -> Option<&Game> {
+    pub fn get(&self, game: &str) -> Option<&Game<'_>> {
         self.0.get(game)
     }
 
-    pub fn get_event(&self, game: &str, event: &str) -> Option<&Event> {
+    pub fn get_event(&self, game: &str, event: &str) -> Option<&Event<'_>> {
         self.0.get(game)?.events.iter().find(|ev| ev.name == event)
     }
 
-    pub fn get_events(&self, name: &str) -> Vec<(String, Event)> {
+    pub fn get_events(&self, name: &str) -> Vec<(String, Event<'_>)> {
         let mut res = Vec::new();
         self.0.iter().for_each(|(_, game)| {
             if let Some(ev) = game.events().iter().find(|ev| ev.name() == name) {
@@ -110,7 +110,7 @@ impl Database<'_> {
     }
 
     /// Returns all the generic events as a vector of owned [`Events`](Event).
-    pub fn generic_events(&self) -> Vec<Event> {
+    pub fn generic_events(&self) -> Vec<Event<'_>> {
         let mut res = Vec::new();
         let names = ["Generic Source", "Generic Source Server"];
         for name in names {

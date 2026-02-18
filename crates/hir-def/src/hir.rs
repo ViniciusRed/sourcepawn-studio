@@ -1,7 +1,6 @@
 use std::fmt;
 
 use la_arena::Idx;
-use smallvec::SmallVec;
 use syntax::TSKind;
 
 use crate::{item_tree::Name, BlockId};
@@ -13,14 +12,6 @@ pub mod type_ref;
 pub type Ident = Name;
 
 pub type IdentId = Idx<Ident>;
-
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub struct Binding {
-    pub name: Name,
-    // pub mode: BindingAnnotation,
-    pub definitions: SmallVec<[IdentId; 1]>,
-    // pub problems: Option<BindingProblems>,
-}
 
 pub type ExprId = Idx<Expr>;
 

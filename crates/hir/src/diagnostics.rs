@@ -36,6 +36,7 @@ diagnostics![
     UnresolvedMacro,
     InactiveCode,
     InvalidUseOfThis,
+    HandleLeak,
 ];
 
 #[derive(Debug)]
@@ -115,4 +116,10 @@ pub struct UnresolvedMacro {
 #[derive(Debug)]
 pub struct InactiveCode {
     pub range: TextRange,
+}
+
+#[derive(Debug)]
+pub struct HandleLeak {
+    pub expr: InFile<NodePtr>,
+    pub type_name: Name,
 }

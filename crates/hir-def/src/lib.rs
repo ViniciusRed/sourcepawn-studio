@@ -19,6 +19,7 @@ mod data;
 pub mod db;
 mod diagnostics;
 pub mod dyn_map;
+pub mod handle_analysis;
 mod hir;
 mod infer;
 mod item_tree;

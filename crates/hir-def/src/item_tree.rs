@@ -442,11 +442,6 @@ pub struct Variant {
     pub deprecated: bool,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub struct Block {
-    pub ast_id: AstId,
-}
-
 /// Trait implemented by all item nodes in the item tree.
 pub trait ItemTreeNode: Clone {
     fn ast_id(&self) -> AstId;

@@ -513,6 +513,13 @@ impl DefWithBody {
                     }
                     .into(),
                 ),
+                InferenceDiagnostic::HandleLeak { expr, type_name } => acc.push(
+                    HandleLeak {
+                        expr: expr_syntax(*expr),
+                        type_name: type_name.clone(),
+                    }
+                    .into(),
+                ),
             }
         }
     }

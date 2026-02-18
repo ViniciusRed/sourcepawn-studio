@@ -73,11 +73,11 @@ impl Tree {
         self.0.edit(edit);
     }
 
-    pub fn root_node(&self) -> tree_sitter::Node {
+    pub fn root_node(&self) -> tree_sitter::Node<'_> {
         self.tree().root_node()
     }
 
-    pub fn covering_element(&self, range: lsp_types::Range) -> Option<tree_sitter::Node> {
+    pub fn covering_element(&self, range: lsp_types::Range) -> Option<tree_sitter::Node<'_>> {
         let start = lsp_position_to_ts_point(&range.start);
         let end = lsp_position_to_ts_point(&range.end);
         self.root_node().descendant_for_point_range(start, end)

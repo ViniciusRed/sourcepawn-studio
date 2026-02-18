@@ -27,6 +27,14 @@ Whether the compile button always compiles the MainPath file (true) or the curre
 
 _Default_: `true`
 
+## useAlternativeOutputPath
+
+**sourcepawn.useAlternativeOutputPath**
+
+Use alternative output path determination for compiled files
+
+_Default_: `false`
+
 ## showCompileIconInEditorTitleMenu
 
 **sourcepawn.showCompileIconInEditorTitleMenu**
@@ -79,7 +87,7 @@ _Default_: `[{"name":"","includeDirectories":[],"compilerPath":"","outputDirecto
 
 **sourcepawn.outputDirectoryPath**
 
-The path to the output directory for the compiled .smx file. Ends with a `/`.
+The path to the output directory for the compiled .smx file. Ends with a `/`. NOTE: It only works with useAlternativeOutputPath active.
 
 _Default_: `""`
 

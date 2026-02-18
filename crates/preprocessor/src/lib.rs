@@ -6,7 +6,7 @@ use conditions::{ConditionOffsetStack, ConditionStack, ConditionState};
 use lsp_types::Diagnostic;
 use smol_str::SmolStr;
 use sourcepawn_lexer::{
-    Comment, Literal, Operator, PreprocDir, SourcepawnLexer, Symbol, TextRange, TextSize, TokenKind,
+    Literal, Operator, PreprocDir, SourcepawnLexer, Symbol, TextRange, TextSize, TokenKind,
 };
 use vfs::FileId;
 

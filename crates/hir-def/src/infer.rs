@@ -7,6 +7,7 @@ use stdx::impl_from;
 use crate::{
     body::Body,
     data::{EnumStructItemData, FunctionData, MethodmapItemData},
+    handle_analysis,
     hir::{type_ref::TypeRef, Expr, Literal},
     item_tree::Name,
     resolver::{HasResolver, Resolver, ValueNs},
@@ -60,6 +61,10 @@ pub enum InferenceDiagnostic {
     },
     InvalidUseOfThis {
         expr: ExprId,
+    },
+    HandleLeak {
+        expr: ExprId,
+        type_name: Name,
     },
 }
 
@@ -479,6 +484,22 @@ impl InferenceContext<'_> {
     pub(crate) fn collect_fn(&mut self, _func: FunctionId) {
         if let Some(id) = self.body.body_expr {
             self.infer_expr(&id);
+        }
+
+        // Run handle leak analysis after inference is complete
+        let leaks = handle_analysis::analyze_handles(
+            self.db,
+            self.body,
+            &self.resolver,
+            &self.result,
+        );
+        for leak in leaks {
+            self.result
+                .diagnostics
+                .push(InferenceDiagnostic::HandleLeak {
+                    expr: leak.alloc_expr,
+                    type_name: leak.type_name,
+                });
         }
     }
 
