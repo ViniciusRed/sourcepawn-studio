@@ -162,20 +162,26 @@ pub fn analyze_handles(
         return Vec::new();
     }
 
-    // Build a reverse map: for each Expr::Ident, find which binding ExprId it refers to
-    // so we can track when a handle variable is used.
-    let binding_exprs: FxHashSet<ExprId> = allocations.keys().copied().collect();
+    // Build a reverse map: variable name -> binding ExprId, so Pass 2 can
+    // look up bindings by name without needing the resolver (which lacks
+    // local scopes at this point in the pipeline).
+    let name_to_binding: FxHashMap<Name, ExprId> = allocations
+        .keys()
+        .filter_map(|&binding_expr| {
+            if let Expr::Binding { ident_id, .. } = &body[binding_expr] {
+                Some((body[*ident_id].clone(), binding_expr))
+            } else {
+                None
+            }
+        })
+        .collect();
 
-    // Helper: given an ExprId that might be an Ident, find the binding it refers to
+    // Helper: given an ExprId that might be an Ident, find the tracked binding it refers to.
+    // Uses direct name lookup instead of the resolver, which lacks local scopes at this point.
     let resolve_to_binding = |expr_id: &ExprId| -> Option<ExprId> {
         if let Expr::Ident(name) = &body[*expr_id] {
-            let name_str: String = name.clone().into();
-            if let Some(ValueNs::LocalId((_, _, binding_expr))) =
-                resolver.resolve_ident(&name_str)
-            {
-                if binding_exprs.contains(&binding_expr) {
-                    return Some(binding_expr);
-                }
+            if let Some(&binding_expr) = name_to_binding.get(name) {
+                return Some(binding_expr);
             }
         }
         None
@@ -202,16 +208,6 @@ pub fn analyze_handles(
                     safe.insert(binding);
                 }
             }
-            // `variable.Close()`
-            Expr::MethodCall {
-                target,
-                method_name,
-                ..
-            } if method_name == &Name::from("Close") => {
-                if let Some(binding) = resolve_to_binding(target) {
-                    safe.insert(binding);
-                }
-            }
             // `CloseHandle(variable)` or any function call with handle as argument
             Expr::Call { callee, args } => {
                 // Any argument passed to a function is considered an escape
@@ -226,12 +222,16 @@ pub fn analyze_handles(
                         safe.insert(binding);
                     }
                 }
-                // Also check if callee is "CloseHandle" specifically
-                // (already covered by args above, but also mark it for the first arg)
                 let _ = callee; // Handled by args iteration
             }
-            // Method call args are also escapes
-            Expr::MethodCall { args, .. } => {
+            // `variable.Close()`, `variable.Display(...)`, etc.
+            // The target of a method call is considered safe because the method
+            // may transfer ownership (e.g. Menu.Display transfers to the engine,
+            // with deletion handled in a callback).
+            Expr::MethodCall { target, args, .. } => {
+                if let Some(binding) = resolve_to_binding(target) {
+                    safe.insert(binding);
+                }
                 for arg in args.iter() {
                     let actual_arg = if let Expr::NamedArg { value, .. } = &body[*arg] {
                         value

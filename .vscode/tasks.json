@@ -5,9 +5,13 @@
       "label": "Build Extension in Watch Mode",
       "group": "build",
       "type": "shell",
-      "command": "bun run watch",
+      "command": "bun",
+      "args": ["run", "watch"],
       "options": {
-        "cwd": "${workspaceFolder}/editors/code"
+        "cwd": "${workspaceFolder}/editors/code",
+        "env": {
+          "PATH": "${env:HOME}/.bun/bin:${env:PATH}"
+        }
       },
       "problemMatcher": {
         "base": "$tsc-watch"
@@ -18,9 +22,13 @@
       "label": "Build Extension",
       "group": "build",
       "type": "shell",
-      "command": "bun run build",
+      "command": "bun",
+      "args": ["run", "build"],
       "options": {
-        "cwd": "${workspaceFolder}/editors/code"
+        "cwd": "${workspaceFolder}/editors/code",
+        "env": {
+          "PATH": "${env:HOME}/.bun/bin:${env:PATH}"
+        }
       },
       "problemMatcher": {
         "base": "$tsc"
@@ -38,7 +46,10 @@
       "type": "shell",
       "command": "mkdir -p languageServer && cp ${workspaceFolder}/target/${input:buildFolder}/sourcepawn-studio languageServer/ && bunx vsce package --target ${input:target}",
       "options": {
-        "cwd": "${workspaceFolder}/editors/code"
+        "cwd": "${workspaceFolder}/editors/code",
+        "env": {
+          "PATH": "${env:HOME}/.bun/bin:${env:PATH}"
+        }
       },
       "problemMatcher": []
     },

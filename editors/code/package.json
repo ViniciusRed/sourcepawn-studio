@@ -2,7 +2,7 @@
   "name": "sourcepawn-vscode",
   "displayName": "SourcePawn Studio",
   "description": "SourcePawn highlighting, autocompletion and much more",
-  "version": "8.1.9",
+  "version": "8.1.11",
   "publisher": "Sarrus",
   "main": "./dist/spIndex.js",
   "icon": "sp-studio_square_256x256.png",
@@ -44,11 +44,14 @@
     "onCommand:sourcepawn-vscode.createProject",
     "onCommand:sourcepawn-vscode.compileSM",
     "onCommand:sourcepawn-vscode.uploadToServer",
-    "onCommand:sourcepawn-vscode.runServerCommands",
     "onCommand:sourcepawn-vscode.insertParameters",
     "onCommand:sourcepawn-vscode.createChangelog",
     "onCommand:sourcepawn-vscode.changeSMApi",
-    "onCommand:sourcepawn-vscode.startServer"
+    "onCommand:sourcepawn-vscode.startServer",
+    "onCommand:sourcepawn-vscode.generateUploadConfig",
+    "onCommand:sourcepawn-vscode.openUploadConfig",
+    "onCommand:sourcepawn-vscode.compileAndUpload",
+    "onCommand:sourcepawn-vscode.uploadToServerPick"
   ],
   "contributes": {
     "commands": [
@@ -88,11 +91,6 @@
         "category": "SM"
       },
       {
-        "command": "sourcepawn-vscode.runServerCommands",
-        "title": "Run Server Commands",
-        "category": "SM"
-      },
-      {
         "command": "sourcepawn-vscode.compileSM",
         "title": "Compile file",
         "category": "SM",
@@ -129,6 +127,26 @@
       {
         "command": "sourcepawn-vscode.changeSMApi",
         "title": "Change SM API",
+        "category": "SM"
+      },
+      {
+        "command": "sourcepawn-vscode.generateUploadConfig",
+        "title": "Generate Upload Config",
+        "category": "SM"
+      },
+      {
+        "command": "sourcepawn-vscode.openUploadConfig",
+        "title": "Open Upload Config",
+        "category": "SM"
+      },
+      {
+        "command": "sourcepawn-vscode.compileAndUpload",
+        "title": "Compile & Upload to...",
+        "category": "SM"
+      },
+      {
+        "command": "sourcepawn-vscode.uploadToServerPick",
+        "title": "Upload to Server...",
         "category": "SM"
       },
       {
@@ -173,17 +191,37 @@
         "title": "Open SourcePawn Language Server logs"
       }
     ],
+    "submenus": [
+      {
+        "id": "sourcepawn-vscode.compileMenu",
+        "label": "SourcePawn"
+      }
+    ],
     "menus": {
       "editor/context": [
         {
           "when": "resourceLangId == sourcepawn",
-          "command": "sourcepawn-vscode.compileSM"
+          "submenu": "sourcepawn-vscode.compileMenu"
         }
       ],
       "explorer/context": [
         {
           "when": "resourceLangId == sourcepawn",
-          "command": "sourcepawn-vscode.compileSM"
+          "submenu": "sourcepawn-vscode.compileMenu"
+        }
+      ],
+      "sourcepawn-vscode.compileMenu": [
+        {
+          "command": "sourcepawn-vscode.compileSM",
+          "group": "1_compile@1"
+        },
+        {
+          "command": "sourcepawn-vscode.compileAndUpload",
+          "group": "1_compile@2"
+        },
+        {
+          "command": "sourcepawn-vscode.uploadToServerPick",
+          "group": "2_upload@1"
         }
       ],
       "editor/title": [
@@ -237,24 +275,16 @@
           "default": true,
           "description": "Whether to show the 'Compile Code' icon in editor title menu."
         },
-        "sourcepawn.runServerCommandsAfterCompile": {
-          "type": "boolean",
-          "default": "false",
-          "description": "Run RCON commands after compiling.",
-          "scope": "resource"
-        },
-        "sourcepawn.serverCommands": {
-          "type": "array",
-          "default": [
-            "sm plugins refresh"
-          ],
-          "scope": "resource",
-          "description": "A list of commands that will be sent to the server after a successful VSCode command or on `runServerCommands`."
-        },
         "sourcepawn.uploadToServerAfterCompile": {
           "type": "boolean",
           "default": false,
           "description": "Upload files to FTP/SFTP after compiling.",
+          "scope": "resource"
+        },
+        "sourcepawn.uploadPluginOnly": {
+          "type": "boolean",
+          "default": false,
+          "description": "When enabled, upload commands send only the compiled .smx to <remoteRoot>/plugins/ instead of mirroring the whole workspace. Useful for the edit→build→upload→debug test cycle.",
           "scope": "resource"
         },
         "sourcepawn.enableLinter": {
@@ -301,19 +331,7 @@
               ".git"
             ]
           },
-          "description": "Upload options for the FTP/SFTP client.",
-          "scope": "resource"
-        },
-        "sourcepawn.SourceServerOptions": {
-          "type": "object",
-          "default": {
-            "host": "",
-            "port": 27015,
-            "encoding": "ascii",
-            "timeout": 1000,
-            "password": ""
-          },
-          "description": "Source server details to execute the commands on.",
+          "markdownDescription": "Legacy upload options for the FTP/SFTP client (single server, edited here in `settings.json`).\n\n**Prefer the file-based config:** [Open Upload Config](command:sourcepawn-vscode.openUploadConfig) to edit `.vscode/sourcepawn-sftp.json`, which supports multiple servers, SSH keys, plugin-only upload and per-server RCON reload.",
           "scope": "resource"
         },
         "sourcepawn.formatterSettings": {

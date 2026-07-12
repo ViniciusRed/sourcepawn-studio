@@ -8,11 +8,12 @@ import { basename, join, dirname, resolve } from "path";
 import { existsSync, mkdirSync } from "fs";
 import { execFile } from "child_process";
 
-import { run as uploadToServerCommand } from "./uploadToServer";
-import { run as runServerCommands } from "./runServerCommands";
+import { uploadToServerWithConfig } from "./uploadToServer";
 import { getCtxFromUri, lastActiveEditor } from "../spIndex";
 import { getMainCompilationFile, isSPFile } from "../spUtils";
 import { Section as Section, editConfig, getConfig } from "../configUtils";
+import { loadUploadServers } from "../uploadConfig";
+import { pickServer } from "../serverPicker";
 
 // Create an OutputChannel variable here but do not initialize yet.
 let output: OutputChannel;
@@ -64,7 +65,7 @@ export async function run(args: URI): Promise<number> {
   }
 
   // Decide where to output the compiled file.
-  
+
   const scriptingFolderPath = dirname(fileToCompilePath);
   const useAlternativeOutputPath = getConfig(Section.SourcePawn, "useAlternativeOutputPath", workspaceFolder);
 
@@ -163,41 +164,55 @@ export async function run(args: URI): Promise<number> {
     });
     output.appendLine(`${command}\n`);
 
-    // Execute
-    execFile(spcompCommand, compilerArgs, async (error, stdout) => {
-      // Update spcomp status
-      ctx?.setSpcompStatus({ quiescent: true });
-      output.appendLine(stdout.toString().trim() + '\n');
+    // Execute compilation wrapped in a Promise
+    const compilationResult = await new Promise<number>((resolvePromise) => {
+      execFile(spcompCommand, compilerArgs, async (error, stdout) => {
+        ctx?.setSpcompStatus({ quiescent: true });
+        output.appendLine(stdout.toString().trim() + '\n');
 
-      // Restore last active editor's focus
-      window.showTextDocument(lastActiveEditor.document);
+        window.showTextDocument(lastActiveEditor.document);
 
-      // Return if compilation failed
-      if (error) {
-        window.showErrorMessage("Compilation failed.")
-        return 1;
-      }
+        if (error) {
+          window.showErrorMessage("Compilation failed.");
+          resolvePromise(1);
+          return;
+        }
 
-      // Little success message in console
-      output.appendLine("Compilation successful.");
-
-      // Get after-compile actions
-      const uploadFtp: boolean = getConfig(Section.SourcePawn, "uploadToServerAfterCompile", workspaceFolder);
-      const runCommands: boolean = getConfig(Section.SourcePawn, "runServerCommandsAfterCompile", workspaceFolder);
-
-      // Run upload and run commands in order if both are true
-      const uploadSuccessful = uploadFtp ? await uploadToServerCommand(fileToCompilePath) : true;
-
-      if (uploadSuccessful && runCommands) {
-        await runServerCommands(fileToCompilePath);
-      }
-
-      return 0;
+        output.appendLine("Compilation successful.");
+        resolvePromise(0);
+      });
     });
+
+    if (compilationResult !== 0) {
+      return compilationResult;
+    }
+
+    // Upload after compile. The per-server RCON refresh (e.g. `sm plugins refresh`)
+    // is handled inside `uploadToServerWithConfig` for the server that was uploaded to.
+    const uploadFtp: boolean = getConfig(Section.SourcePawn, "uploadToServerAfterCompile", workspaceFolder);
+
+    if (uploadFtp) {
+      const servers = loadUploadServers(workspaceFolder);
+      if (!servers || servers.length === 0) {
+        window.showErrorMessage(
+          "Upload after compile is enabled but no servers are configured.",
+          "Generate Config"
+        ).then((choice) => {
+          if (choice === "Generate Config") {
+            import("./generateUploadConfig").then((m) => m.run());
+          }
+        });
+      } else {
+        let server = servers.length === 1 ? servers[0] : await pickServer(servers);
+        if (server) {
+          await uploadToServerWithConfig(workspaceFolder, server, fileToCompilePath);
+        }
+      }
+    }
+
+    return 0;
   } catch (error) {
     console.error(error);
     return 1;
   }
-
-  return 0;
 }
