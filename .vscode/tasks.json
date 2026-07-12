@@ -44,7 +44,7 @@
     {
       "label": "Package Extension",
       "type": "shell",
-      "command": "mkdir -p languageServer && cp ${workspaceFolder}/target/${input:buildFolder}/sourcepawn-studio languageServer/ && bunx vsce package --target ${input:target}",
+      "command": "mkdir -p languageServer && cp ${workspaceFolder}/target/${input:buildFolder}/sourcepawn-studio languageServer/ && bunx vsce package --target ${input:target} --no-dependencies",
       "options": {
         "cwd": "${workspaceFolder}/editors/code",
         "env": {

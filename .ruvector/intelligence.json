@@ -3,9 +3,9 @@
     "cmd_shell_general|success": {
       "state": "cmd_shell_general",
       "action": "success",
-      "q_value": 0.21680000000000005,
-      "visits": 3,
-      "last_update": 1780680127
+      "q_value": 0.41736248000000004,
+      "visits": 7,
+      "last_update": 1783824672
     },
     "edit__in_project|successful-edit": {
       "state": "edit__in_project",
@@ -2748,6 +2748,38 @@
       "outcome": "completed",
       "reward": 0.8,
       "timestamp": 1780680127
+    },
+    {
+      "id": "traj_1783823614",
+      "state": "cmd_shell_general",
+      "action": "success",
+      "outcome": "completed",
+      "reward": 0.8,
+      "timestamp": 1783823614
+    },
+    {
+      "id": "traj_1783823621",
+      "state": "cmd_shell_general",
+      "action": "success",
+      "outcome": "completed",
+      "reward": 0.8,
+      "timestamp": 1783823621
+    },
+    {
+      "id": "traj_1783823676",
+      "state": "cmd_shell_general",
+      "action": "success",
+      "outcome": "completed",
+      "reward": 0.8,
+      "timestamp": 1783823676
+    },
+    {
+      "id": "traj_1783824672",
+      "state": "cmd_shell_general",
+      "action": "success",
+      "outcome": "completed",
+      "reward": 0.8,
+      "timestamp": 1783824672
     }
   ],
   "errors": {},
@@ -2757,9 +2789,20 @@
   "stats": {
     "total_patterns": 2,
     "total_memories": 35,
-    "total_trajectories": 22,
+    "total_trajectories": 26,
     "total_errors": 0,
-    "session_count": 3,
-    "last_session": 1780679611
+    "session_count": 4,
+    "last_session": 1783822338
+  },
+  "embeddingProvenance": null,
+  "activeTrajectories": {
+    "traj_1783822338283_71vpay6na": {
+      "id": "traj_1783822338283_71vpay6na",
+      "context": "claude-session",
+      "agent": "claude",
+      "file": null,
+      "steps": [],
+      "startTime": 1783822338283
+    }
   }
 }
